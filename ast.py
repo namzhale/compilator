@@ -132,3 +132,19 @@ class IfNode(ASTNode):
         self.condition = condition
         self.if_body = if_body
         self.else_body = else_body
+
+
+class ArrayLiteralNode(ASTNode):
+    def __init__(self, elements):
+        self.elements = elements
+
+class IndexAccessNode(ASTNode):
+    def __init__(self, array_name, index):
+        self.array_name = array_name
+        self.index = index
+
+class IndexAssignNode(ASTNode):
+    def __init__(self, array_name, index, value):
+        self.array_name = array_name
+        self.index = index
+        self.value = value

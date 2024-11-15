@@ -115,7 +115,38 @@ class Interpreter:
                 for stmt in node.else_body:
                     self.interpret_node(stmt)
             return None
+        elif isinstance(node, ArrayLiteralNode):
+            return [self.interpret_node(element) for element in node.elements]
 
+        elif isinstance(node, IndexAccessNode):
+            array = self.variables.get(node.array_name)
+            if array is None:
+                raise ValueError(f"Переменная '{node.array_name}' не определена")
+            index = self.interpret_node(node.index)
+            if not isinstance(array, list):
+                raise ValueError(f"Переменная '{node.array_name}' не является массивом")
+            if not isinstance(index, int):
+                raise ValueError("Индекс массива должен быть целым числом")
+            try:
+                return array[index]
+            except IndexError:
+                raise ValueError(f"Индекс {index} выходит за пределы массива '{node.array_name}'")
+
+        elif isinstance(node, IndexAssignNode):
+            array = self.variables.get(node.array_name)
+            if array is None:
+                raise ValueError(f"Переменная '{node.array_name}' не определена")
+            index = self.interpret_node(node.index)
+            value = self.interpret_node(node.value)
+            if not isinstance(array, list):
+                raise ValueError(f"Переменная '{node.array_name}' не является массивом")
+            if not isinstance(index, int):
+                raise ValueError("Индекс массива должен быть целым числом")
+            try:
+                array[index] = value
+            except IndexError:
+                raise ValueError(f"Индекс {index} выходит за пределы массива '{node.array_name}'")
+            return value
         # Error handling for unexpected node types
         else:
             raise ValueError(f"Unknown node type: {type(node)}")

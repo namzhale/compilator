@@ -215,6 +215,9 @@ class Parser:
         elif token[0] == TokenType.PUNCTUATION and token[1] == '{':
             return self.parse_block()
 
+        elif token[0] == TokenType.PUNCTUATION and token[1] == '[':
+            return self.parse_array_literal()
+
         # Error handling for unexpected tokens
         else:
             raise ValueError(f"Неожиданный токен {token[1]} ({token[0]}) в строке {token[2]}, колонка {token[3]}")
@@ -264,3 +267,46 @@ class Parser:
         if self.pos + 1 < len(self.tokens):
             return self.tokens[self.pos + 1]
         return (TokenType.EOF, None)
+
+    def parse_assignment_or_variable(self):
+        var_name = self.current_token()[1]
+        self.consume(TokenType.IDENTIFIER)
+
+        # Проверка на индексацию массива
+        if self.current_token()[0] == TokenType.PUNCTUATION and self.current_token()[1] == '[':
+            index = self.parse_index()
+            # Проверка на присваивание
+            if self.current_token()[0] == TokenType.ASSIGN:
+                self.consume()
+                value = self.expr()
+                return IndexAssignNode(var_name, index, value)
+            else:
+                return IndexAccessNode(var_name, index)
+        elif self.current_token()[0] == TokenType.ASSIGN:
+            self.consume()
+            value = self.expr()
+            return VarAssignNode(var_name, value)
+        else:
+            return VarAccessNode(var_name)
+
+    def parse_index(self):
+        self.consume(TokenType.PUNCTUATION, '[')
+        index_expr = self.expr()
+        self.consume(TokenType.PUNCTUATION, ']')
+        return index_expr
+
+    def parse_array_literal(self):
+        elements = []
+        self.consume(TokenType.PUNCTUATION, '[')
+        if self.current_token()[0] == TokenType.PUNCTUATION and self.current_token()[1] == ']':
+            self.consume(TokenType.PUNCTUATION, ']')
+            return ArrayLiteralNode(elements)
+        while True:
+            element = self.expr()
+            elements.append(element)
+            if self.current_token()[0] == TokenType.PUNCTUATION and self.current_token()[1] == ',':
+                self.consume(TokenType.PUNCTUATION, ',')
+            else:
+                break
+        self.consume(TokenType.PUNCTUATION, ']')
+        return ArrayLiteralNode(elements)

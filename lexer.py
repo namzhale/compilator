@@ -32,7 +32,7 @@ TOKEN_SPECIFICATION = [
     ("COMPARISON", r'[<>]=?|==|!='),  # Comparison operators (<, >, <=, >=, ==, !=)
     ("ASSIGN", r'='),  # Assignment operator (=)
     ("OPERATOR", r'[+\-*/]'),  # Arithmetic operators (+, -, *, /)
-    ("PUNCTUATION", r'[;{}(),]'),  # Punctuation symbols (e.g., ;, {}, (), ,)
+    ("PUNCTUATION", r'[;{}(),\[\]]'),  # Punctuation symbols (e.g., ;, {}, (), ,)
     ("SKIP", r'[ \t]+'),  # Skip whitespace (spaces, tabs)
     ("NEWLINE", r'\n'),  # Newline to track line numbers
     ("COMMENT", r'#.*'),  # Comment (starts with # and goes to the end of the line)
